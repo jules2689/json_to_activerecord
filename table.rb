@@ -44,32 +44,36 @@ class Table
 
   def print_multi_array_table
     first_row = rows.first
+    entry_name = first_row.name.downcase.singularize.parameterize
     puts "#{json_entry_name(first_row, true)}.each do |entry|"
-    puts "  #{first_row.name.downcase.singularize} = #{first_row.name.camelcase.singularize}.new"
-    puts "  #{first_row.name.downcase.singularize}.#{first_row.name} = entry"
-    puts "  #{name.downcase.singularize}.save"
+    puts "  #{entry_name} = #{first_row.name.camelcase.singularize.gsub(/\s/,'')}.new"
+    puts "  #{entry_name}.#{first_row.name} = entry"
+    puts "  #{entry_name}.#{parent.name} = #{parent.name.downcase.singularize.parameterize}" if parent
+    puts "  #{entry_name}.save"
     puts "end"
   end
 
   def print_multi_hash_table
     first_row = Row.new("", nil, false, self)
+    entry_name = name.downcase.singularize.parameterize
     puts "#{json_entry_name(first_row, true)}.each do |entry|"
-      puts "  #{name.downcase.singularize} = #{name.camelcase.singularize}.new"
+      puts "  #{entry_name} = #{name.camelcase.singularize.gsub(/\s/,'')}.new"
       self.rows.each do |row|
-        puts "  #{name.downcase.singularize}.#{row.name} = entry['#{row.name}']"
+        puts "  #{entry_name}.#{row.name} = entry['#{row.name}']"
       end
-      puts "  #{name.downcase.singularize}.#{parent.name} = #{parent.name.downcase.singularize}" if parent
-      puts "  #{name.downcase.singularize}.save"
+      puts "  #{entry_name}.#{parent.name} = #{parent.name.downcase.singularize.parameterize}" if parent
+      puts "  #{entry_name}.save"
     puts "end"
   end
 
   def print_normal_table
-    puts "#{name.downcase.singularize} = #{name.camelcase.singularize}.new"
+    entry_name = name.downcase.singularize.parameterize
+    puts "#{entry_name} = #{name.camelcase.singularize.gsub(/\s/,'')}.new"
     self.rows.each do |row|
-      puts "#{name.downcase.singularize}.#{row.name} = #{json_entry_name(row)}"
+      puts "#{entry_name}.#{row.name} = #{json_entry_name(row)}"
     end
-    puts "#{name.downcase.singularize}.#{parent.name} = #{parent.name.downcase.singularize}" if parent
-    puts "#{name.downcase.singularize}.save"
+    puts "#{entry_name}.#{parent.name} = #{parent.name.downcase.singularize.parameterize}" if parent
+    puts "#{entry_name}.save"
   end
 
 

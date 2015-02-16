@@ -69,7 +69,7 @@ class JsonToActiveRecord
 
   def process_new_table(name, entries, parent=nil)
     if name.downcase == "hours"
-      process_table("day_hours", { open: "", close: "" }, parent) # Special case
+      process_table("day_hours", { open: "", close: "" }, parent, true) # Special case
     else
       process_table(name, entries, parent)
     end

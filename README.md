@@ -624,6 +624,7 @@ end
 order['refunds']['refund_line_items']['line_item']['properties'].each do |entry|
   property = Property.new
   property.property = entry
+  property.line_item = line_item
   property.save
 end
 
@@ -697,6 +698,7 @@ end
 order['refunds']['refund_line_items']['line_item']['tax_lines'].each do |entry|
   tax_line = TaxLine.new
   tax_line.tax_line = entry
+  tax_line.line_item = line_item
   tax_line.save
 end
 
@@ -714,6 +716,7 @@ end
 order['fulfillments']['tracking_numbers'].each do |entry|
   tracking_number = TrackingNumber.new
   tracking_number.tracking_number = entry
+  tracking_number.fulfillments = fulfillment
   tracking_number.save
 end
 
@@ -721,6 +724,7 @@ end
 order['fulfillments']['tracking_urls'].each do |entry|
   tracking_url = TrackingUrl.new
   tracking_url.tracking_url = entry
+  tracking_url.fulfillments = fulfillment
   tracking_url.save
 end
 
