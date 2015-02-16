@@ -48,7 +48,7 @@ class JsonToActiveRecord
         process_table(key, value.first, table, true)
       else
         new_table = Table.new(key, value, table, true)
-        new_table.add_row(Row.new("string", key.singularize, key.include?("_id"), table))
+        new_table.add_row(Row.new("text", key.singularize, key.include?("_id"), table))
         self.tables << new_table
       end
       nil

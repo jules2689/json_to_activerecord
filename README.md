@@ -1,4 +1,4 @@
-# json_to_activerecord
+# JSON to Activerecord
 
 By placing a json blob in `data.json` and then running `./parse.rb` in terminal, this script will determine and output a basic ActiveRecord format.
 
@@ -9,6 +9,8 @@ Features
   - It defaults to text otherwise.
   - If it guesses the type, it will warn you in the output.
  - Can handle nested hashes as separate tables
+ - Can handle nested array/hashes as separate tables.
+ - Can handle nested empty arrays (treats as a table with one column).
  - Can handle references columns as "indexed".
  - Any id column is indexed.
  - Can handle a business hours hash, something like the following will be parsed separately.
@@ -37,8 +39,9 @@ Features
    }
    ```
 
-While this may not be perfect, it is a great start and saves a lot of manual entry.
-For example, by giving the parser a Shopify Order JSON object, we are given this back in the console:
+- While this may not be perfect, it is a great start and saves a lot of manual entry.
+- Issues include the fact that some tables may be duplicated (see end of the output below) and polymorphism is not detected (i.e. with Addresses).
+- For example, by giving the parser a Shopify Order JSON object, we are given this back in the console:
 
 ```
 create_table :billing_address do |t|
