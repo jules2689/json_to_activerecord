@@ -3,7 +3,7 @@ class Row
 
   def initialize(row_type, key, indexed, table)
     self.row_type = row_type
-    self.name = name_for_key(table.name, key).downcase.gsub(/(\s|-)/,"_")
+    self.name = name_for_key(table.name, key).downcase.gsub(/(\s|-)/,"_") if key
     self.indexed = indexed
     self.table = table
   end
