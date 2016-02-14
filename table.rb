@@ -1,7 +1,7 @@
 require 'active_support/inflector'
 
 class Table
-  attr_accessor :name, :parent, :rows, :json, :multi_entry_table
+  attr_accessor :name, :parent, :children, :rows, :json, :multi_entry_table
 
   def initialize(name, json, parent=nil, multi_entry_table=false)
     self.name = name
@@ -9,6 +9,13 @@ class Table
     self.json
     self.multi_entry_table = multi_entry_table
     self.rows = []
+    self.children = []
+
+    parent.children << self if parent
+  end
+
+  def constant_name
+    name.camelcase.singularize.gsub(/\s/,'')
   end
 
   def add_row(row)
@@ -16,24 +23,40 @@ class Table
     self.rows.sort! { |a,b| a.row_type <=> b.row_type }
   end
 
-  def print
-    puts "create_table :#{name.downcase.gsub(/ /,"_")} do |t|"
+  def to_migration
+    output = []
+    output << "class Create#{constant_name.pluralize} < ActiveRecord::Migration[5.0]"
+    output << "  create_table :#{name.downcase.gsub(/ /,"_")} do |t|"
     rows.each do |row|
-      row.print
+      output << "    #{row.to_table_row}"
     end
-    puts "  t.references :#{parent.name}, index: true" if parent
-    puts "  t.timestamps"
-    puts "end"
+    output << "    t.references :#{parent.name}, index: true" if parent
+    output << "    t.timestamps  null: false"
+    output << "  end"
+    output << "end"
+    output.flatten.join("\n")
   end
 
-  def print_parser
+  def to_parser
     if self.multi_entry_table && rows.size == 1
-      print_multi_array_table
+      output = to_multi_array_table
     elsif self.multi_entry_table
-      print_multi_hash_table
+      output = to_multi_hash_table
     else
-      print_normal_table
+      output = to_basic_table
     end
+    output.flatten.join("\n")
+  end
+
+  def to_model
+    output = []
+    output << "class #{constant_name} < ActiveRecord::Base"
+    output << "  belongs_to :#{parent.name.singularize}" if parent
+    children.each do |child|
+      output << "  has_many :#{child.name}"
+    end
+    output << "end"
+    output.flatten.join("\n")
   end
 
   def row_names
@@ -42,40 +65,52 @@ class Table
 
   private
 
-  def print_multi_array_table
+  def to_multi_array_table
     first_row = rows.first
     entry_name = first_row.name.downcase.singularize.parameterize
-    puts "#{json_entry_name(first_row, true)}.each do |entry|"
-    puts "  #{entry_name} = #{first_row.name.camelcase.singularize.gsub(/\s/,'')}.new"
-    puts "  #{entry_name}.#{first_row.name} = entry"
-    puts "  #{entry_name}.#{parent.name} = #{parent.name.downcase.singularize.parameterize}" if parent
-    puts "  #{entry_name}.save"
-    puts "end"
+    output = []
+
+    output << "#{json_entry_name(first_row, true)}.each do |entry|"
+    output << "  #{entry_name} = #{first_row.constant_name}.new"
+    output << "  #{entry_name}.#{first_row.name} = entry"
+    output << parent_row(entry_name, "  ") if parent
+    output << "  #{entry_name}.save"
+    output << "end"
+    output
   end
 
-  def print_multi_hash_table
+  def to_multi_hash_table
     first_row = Row.new("", nil, false, self)
     entry_name = name.downcase.singularize.parameterize
-    puts "#{json_entry_name(first_row, true)}.each do |entry|"
-      puts "  #{entry_name} = #{name.camelcase.singularize.gsub(/\s/,'')}.new"
+    output = []
+
+    output << "#{json_entry_name(first_row, true)}.each do |entry|"
+      output << "  #{entry_name} = #{constant_name}.new"
       self.rows.each do |row|
-        puts "  #{entry_name}.#{row.name} = entry['#{row.name}']"
+        output << "  #{entry_name}.#{row.name} = entry['#{row.name}']"
       end
-      puts "  #{entry_name}.#{parent.name} = #{parent.name.downcase.singularize.parameterize}" if parent
-      puts "  #{entry_name}.save"
-    puts "end"
+      output << parent_row(entry_name, "  ") if parent
+      output << "  #{entry_name}.save"
+    output << "end"
+    output
   end
 
-  def print_normal_table
+  def to_basic_table
     entry_name = name.downcase.singularize.parameterize
-    puts "#{entry_name} = #{name.camelcase.singularize.gsub(/\s/,'')}.new"
+    output = []
+
+    output << "#{entry_name} = #{constant_name}.new"
     self.rows.each do |row|
-      puts "#{entry_name}.#{row.name} = #{json_entry_name(row)}"
+      output << "#{entry_name}.#{row.name} = #{json_entry_name(row)}"
     end
-    puts "#{entry_name}.#{parent.name} = #{parent.name.downcase.singularize.parameterize}" if parent
-    puts "#{entry_name}.save"
+    output << parent_row(entry_name) if parent
+    output << "#{entry_name}.save"
+    output
   end
 
+  def parent_row(entry_name, beginning_space="")
+    "#{beginning_space}#{entry_name}.#{parent.name.singularize} = #{parent.name.singularize}"
+  end
 
   def json_entry_name(row, pluralize_table_names=false)
     table = row.table

@@ -1,6 +1,6 @@
 # JSON to Activerecord
 
-By placing a json blob in `data.json` and then running `./parse.rb` in terminal, this script will determine and output a basic ActiveRecord format.
+By placing a json blob in `data.json` and then running `./parse.rb` in terminal, this script will determine and output a basic ActiveRecord format. Models will be put in `output/models` and migrations will be in `output/migrations`. JSON parsing is printing to console.
 
 Features
 ---

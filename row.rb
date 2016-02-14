@@ -8,10 +8,14 @@ class Row
     self.table = table
   end
 
-  def print
-    s = "  t.#{row_type} :#{name}"
+  def constant_name
+    name.camelcase.singularize.gsub(/\s/,'')
+  end
+
+  def to_table_row
+    s = "t.#{row_type} :#{name}"
     s = s + ", index: true" if self.indexed
-    puts s
+    s
   end
 
   def name_for_key(table, key)
@@ -39,13 +43,13 @@ class Row
     elsif class_type == Array
       "array"
     elsif key.include?("_id")
-      puts "Had an issue with the column \"#{key}\" in \"#{table}\", check it's type"
+      puts "Had an issue with the column \"#{key}\" in \"#{table}\", check the row's type"
       "integer"
     elsif key.include?("_at")
-      puts "Had an issue with the column \"#{key}\" in \"#{table}\", check it's type"
+      puts "Had an issue with the column \"#{key}\" in \"#{table}\", check the row's type"
       "datetime"
     else
-      puts "Had an issue with the column \"#{key}\" in \"#{table}\", check it's type"
+      puts "Had an issue with the column \"#{key}\" in \"#{table}\", check the row's type"
       "text"
     end
   end

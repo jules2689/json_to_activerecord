@@ -2,92 +2,32 @@
 
 require 'json'
 require 'pry'
-require 'active_support/inflector'
-
-require_relative 'table'
-require_relative 'row'
-
-class JsonToActiveRecord
-  attr_accessor :tables, :parsing, :current_parse
-
-  def initialize
-    self.tables = []
-    self.parsing = []
-
-    json = JSON.parse(File.read("data.json"))
-    main_table_name = "table"
-
-    if json.count == 1
-      main_table_name = json.first.first
-      json = json.first.last
-    elsif json.count == 2
-      main_table_name = json.first
-      json = json.last
-    else
-      puts "What is the name?"
-      main_table_name = gets.chomp
-    end
-
-    process_table(main_table_name, json)
-    self.tables.sort! { |a,b| a.name <=> b.name }
-    self.tables.uniq!(&:row_names)
-  end
-
-  private
-
-  def row_for_key_and_value(table, key, value)
-    var_type = Row.column_type_for_value(table.name, key, value)
-    key = key.to_s
-
-    if var_type == "hash" # This is a sub table, process it as such
-      process_new_table(key, value, table)
-      nil
-    elsif var_type == "array" # This is a special case of a sub table
-      first_var_type = Row.column_type_for_value(table.name, key, value.first)
-      if first_var_type == "hash"
-        process_table(key, value.first, table, true)
-      else
-        new_table = Table.new(key, value, table, true)
-        new_table.add_row(Row.new("text", key.singularize, key.include?("_id"), table))
-        self.tables << new_table
-      end
-      nil
-    else
-      row = Row.new(var_type, key, key.include?("_id"), table)
-      row
-    end
-  end
-
-  def process_table(name, entries, parent=nil, multi_table=false)
-    table = Table.new(name, entries, parent, multi_table)
-    entries.map do |key, value|
-      row = row_for_key_and_value(table, key, value)
-      table.add_row(row) if row
-    end
-    self.tables << table
-  end
-
-  def process_new_table(name, entries, parent=nil)
-    if name.downcase == "hours"
-      process_table("day_hours", { open: "", close: "" }, parent, true) # Special case
-    else
-      process_table(name, entries, parent)
-    end
-  end
-end
+require_relative 'json_to_activerecord'
 
 j = JsonToActiveRecord.new
-puts "\n\n"
 
+puts "Writing migrations to 'output/migrations'"
+dir = "output/migrations"
+remove_directory_content(dir)
 j.tables.each do |t|
-  t.print
-  puts "\n\n"
+  table_content = t.to_migration
+  time_stamp = Time.now.strftime("%Y%m%d%H%M%S")
+  file_name = "#{time_stamp}_create_#{t.name}.rb"
+  write_to_file(dir, file_name, table_content)
 end
 
-sleep 0.5
-
+puts "\n\nWriting models to 'output/models'"
+dir = "output/models"
+remove_directory_content(dir)
 j.tables.each do |t|
-  t.print_parser
+  model_content = t.to_model
+  file_name = "#{t.name}.rb"
+  write_to_file(dir, file_name, model_content)
+end
+
+puts "Here are parsers to parse the json\n\n"
+j.tables.each do |t|
+  puts t.to_parser
   puts "\n\n"
 end
 
