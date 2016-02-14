@@ -1,4 +1,4 @@
-class CreateFulfillments < ActiveRecord::Migration[5.0]
+class CreateFulfillments < ActiveRecord::Migration
   create_table :fulfillments do |t|
     t.integer :fulfillments_id
     t.integer :order_id, index: true

@@ -1,4 +1,4 @@
-class CreatePaymentDetails < ActiveRecord::Migration[5.0]
+class CreatePaymentDetails < ActiveRecord::Migration
   create_table :payment_details do |t|
     t.string :credit_card_number
     t.string :credit_card_company

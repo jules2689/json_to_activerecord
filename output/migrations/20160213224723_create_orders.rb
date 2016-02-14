@@ -1,4 +1,4 @@
-class CreateOrders < ActiveRecord::Migration[5.0]
+class CreateOrders < ActiveRecord::Migration
   create_table :orders do |t|
     t.boolean :buyer_accepts_marketing
     t.boolean :confirmed

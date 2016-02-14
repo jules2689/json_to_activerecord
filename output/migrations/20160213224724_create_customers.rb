@@ -1,4 +1,4 @@
-class CreateCustomers < ActiveRecord::Migration[5.0]
+class CreateCustomers < ActiveRecord::Migration
   create_table :customers do |t|
     t.boolean :accepts_marketing
     t.boolean :verified_email

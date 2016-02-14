@@ -1,4 +1,4 @@
-class CreateProperties < ActiveRecord::Migration[5.0]
+class CreateProperties < ActiveRecord::Migration
   create_table :properties do |t|
     t.string :name
     t.string :value

@@ -1,4 +1,4 @@
-class CreateDefaultAddresses < ActiveRecord::Migration[5.0]
+class CreateDefaultAddresses < ActiveRecord::Migration
   create_table :default_addresses do |t|
     t.boolean :default
     t.integer :default_addresses_id

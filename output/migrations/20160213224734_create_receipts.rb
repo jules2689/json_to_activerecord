@@ -1,4 +1,4 @@
-class CreateReceipts < ActiveRecord::Migration[5.0]
+class CreateReceipts < ActiveRecord::Migration
   create_table :receipts do |t|
     t.boolean :testcase
     t.string :authorization

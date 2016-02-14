@@ -1,4 +1,4 @@
-class CreateShippingLines < ActiveRecord::Migration[5.0]
+class CreateShippingLines < ActiveRecord::Migration
   create_table :shipping_lines do |t|
     t.string :code
     t.string :price

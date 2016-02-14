@@ -1,4 +1,4 @@
-class CreateLineItems < ActiveRecord::Migration[5.0]
+class CreateLineItems < ActiveRecord::Migration
   create_table :line_items do |t|
     t.boolean :gift_card
     t.boolean :requires_shipping

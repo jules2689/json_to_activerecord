@@ -1,4 +1,4 @@
-class CreateDiscountCodes < ActiveRecord::Migration[5.0]
+class CreateDiscountCodes < ActiveRecord::Migration
   create_table :discount_codes do |t|
     t.string :code
     t.string :amount

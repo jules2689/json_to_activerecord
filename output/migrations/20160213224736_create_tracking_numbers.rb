@@ -1,4 +1,4 @@
-class CreateTrackingNumbers < ActiveRecord::Migration[5.0]
+class CreateTrackingNumbers < ActiveRecord::Migration
   create_table :tracking_numbers do |t|
     t.text :tracking_number
     t.references :fulfillments, index: true

@@ -1,4 +1,4 @@
-class CreateRefunds < ActiveRecord::Migration[5.0]
+class CreateRefunds < ActiveRecord::Migration
   create_table :refunds do |t|
     t.boolean :restock
     t.integer :order_id, index: true

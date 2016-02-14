@@ -9,9 +9,13 @@ j = JsonToActiveRecord.new
 puts "Writing migrations to 'output/migrations'"
 dir = "output/migrations"
 remove_directory_content(dir)
+time = Time.now
+
 j.tables.each do |t|
+  time += 1
+
   table_content = t.to_migration
-  time_stamp = Time.now.strftime("%Y%m%d%H%M%S")
+  time_stamp = time.strftime("%Y%m%d%H%M%S")
   file_name = "#{time_stamp}_create_#{t.name}.rb"
   write_to_file(dir, file_name, table_content)
 end

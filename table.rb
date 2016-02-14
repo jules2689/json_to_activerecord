@@ -25,7 +25,7 @@ class Table
 
   def to_migration
     output = []
-    output << "class Create#{constant_name.pluralize} < ActiveRecord::Migration[5.0]"
+    output << "class Create#{constant_name.pluralize} < ActiveRecord::Migration"
     output << "  create_table :#{name.downcase.gsub(/ /,"_")} do |t|"
     rows.each do |row|
       output << "    #{row.to_table_row}"

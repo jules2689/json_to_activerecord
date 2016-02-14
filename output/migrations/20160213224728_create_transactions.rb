@@ -1,4 +1,4 @@
-class CreateTransactions < ActiveRecord::Migration[5.0]
+class CreateTransactions < ActiveRecord::Migration
   create_table :transactions do |t|
     t.boolean :test
     t.integer :parent_id, index: true

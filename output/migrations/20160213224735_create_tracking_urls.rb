@@ -1,4 +1,4 @@
-class CreateTrackingUrls < ActiveRecord::Migration[5.0]
+class CreateTrackingUrls < ActiveRecord::Migration
   create_table :tracking_urls do |t|
     t.text :tracking_url
     t.references :fulfillments, index: true

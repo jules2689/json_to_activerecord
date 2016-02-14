@@ -1,5 +1,5 @@
-class CreateBillingAddresses < ActiveRecord::Migration[5.0]
-  create_table :billing_addresses do |t|
+class CreateShippingAddresses < ActiveRecord::Migration
+  create_table :shipping_addresses do |t|
     t.float :latitude
     t.float :longitude
     t.string :country
