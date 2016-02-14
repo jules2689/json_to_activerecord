@@ -1,4 +1,4 @@
 class Transaction < ActiveRecord::Base
   belongs_to :refund
-  has_many :receipts
+  has_one :receipt
 end

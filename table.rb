@@ -6,7 +6,7 @@ class Table
   def initialize(name, json, parent=nil, multi_entry_table=false)
     self.name = name
     self.parent = parent
-    self.json
+    self.json = json
     self.multi_entry_table = multi_entry_table
     self.rows = []
     self.children = []
@@ -52,9 +52,19 @@ class Table
     output = []
     output << "class #{constant_name} < ActiveRecord::Base"
     output << "  belongs_to :#{parent.name.singularize}" if parent
+
+    # Children will introduce has_many and has_one relationships, find/sort/output those
+    children_output = []
     children.each do |child|
-      output << "  has_many :#{child.name}"
+      if child.multi_entry_table
+        children_output << "  has_many :#{child.name.pluralize}"
+      else
+        children_output << "  has_one :#{child.name.singularize}"
+      end
     end
+    children_output.sort!
+    output = output + children_output
+
     output << "end"
     output.flatten.join("\n")
   end
@@ -85,12 +95,12 @@ class Table
     output = []
 
     output << "#{json_entry_name(first_row, true)}.each do |entry|"
-      output << "  #{entry_name} = #{constant_name}.new"
-      self.rows.each do |row|
-        output << "  #{entry_name}.#{row.name} = entry['#{row.name}']"
-      end
-      output << parent_row(entry_name, "  ") if parent
-      output << "  #{entry_name}.save"
+    output << "  #{entry_name} = #{constant_name}.new"
+    self.rows.each do |row|
+      output << "  #{entry_name}.#{row.name} = entry['#{row.name}']"
+    end
+    output << parent_row(entry_name, "  ") if parent
+    output << "  #{entry_name}.save"
     output << "end"
     output
   end
@@ -108,8 +118,8 @@ class Table
     output
   end
 
-  def parent_row(entry_name, beginning_space="")
-    "#{beginning_space}#{entry_name}.#{parent.name.singularize} = #{parent.name.singularize}"
+  def parent_row(entry_name, spacer="")
+    "#{spacer}#{entry_name}.#{parent.name.singularize} = #{parent.name.singularize}"
   end
 
   def json_entry_name(row, pluralize_table_names=false)

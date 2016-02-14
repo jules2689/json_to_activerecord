@@ -12,10 +12,11 @@ class JsonToActiveRecord
     json = JSON.parse(File.read("data.json"))
     main_table_name = "table"
 
-    if json.count == 1
+    case json.count
+    when 1
       main_table_name = json.first.first
       json = json.first.last
-    elsif json.count == 2
+    when 2
       main_table_name = json.first
       json = json.last
     else
@@ -24,7 +25,6 @@ class JsonToActiveRecord
     end
 
     process_table(main_table_name, json)
-    self.tables.sort! { |a,b| a.name <=> b.name }
     self.tables.uniq!(&:row_names)
     self.tables.reverse! # Main table is gonna be the parent of everything, so print that first
   end
@@ -35,10 +35,11 @@ class JsonToActiveRecord
     var_type = Row.column_type_for_value(table.name, key, value)
     key = key.to_s
 
-    if var_type == "hash" # This is a sub table, process it as such
+    case var_type
+    when "hash" # Hash will be a new table, with 1-1 relationship
       process_new_table(key, value, table)
       nil
-    elsif var_type == "array" # This is a special case of a sub table
+    when "array" # Array will be a new table with 1-n relationship
       first_var_type = Row.column_type_for_value(table.name, key, value.first)
       if first_var_type == "hash"
         process_table(key, value.first, table, true)

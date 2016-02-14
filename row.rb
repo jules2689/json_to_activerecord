@@ -14,7 +14,7 @@ class Row
 
   def to_table_row
     s = "t.#{row_type} :#{name}"
-    s = s + ", index: true" if self.indexed
+    s << ", index: true" if self.indexed
     s
   end
 
@@ -27,30 +27,30 @@ class Row
   end
 
   def self.column_type_for_value(table, key, value)
-    class_type = value.class
-    if class_type == String
+    case value.class.to_s
+    when "String"
       value.length > 200 ? "text" : "string"
-    elsif class_type == Fixnum
+    when "Fixnum"
       "integer"
-    elsif class_type == TrueClass
+    when "TrueClass", "FalseClass"
       "boolean"
-    elsif class_type == FalseClass
-      "boolean"
-    elsif class_type == Float
+    when "Float"
       "float"
-    elsif class_type == Hash
+    when "Hash"
       "hash"
-    elsif class_type == Array
+    when "Array"
       "array"
-    elsif key.include?("_id")
-      puts "Had an issue with the column \"#{key}\" in \"#{table}\", check the row's type"
-      "integer"
-    elsif key.include?("_at")
-      puts "Had an issue with the column \"#{key}\" in \"#{table}\", check the row's type"
-      "datetime"
     else
-      puts "Had an issue with the column \"#{key}\" in \"#{table}\", check the row's type"
-      "text"
+      if key.end_with?("_id")
+        puts "Had an issue with the column \"#{key}\" in \"#{table}\", check the row's type"
+        "integer"
+      elsif key.end_with?("_at")
+        puts "Had an issue with the column \"#{key}\" in \"#{table}\", check the row's type"
+        "datetime"
+      else # Default to text to hold anything
+        puts "Had an issue with the column \"#{key}\" in \"#{table}\", check the row's type"
+        "text"
+      end
     end
   end
 end
