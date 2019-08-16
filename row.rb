@@ -14,6 +14,7 @@ class Row
 
   def to_table_row
     s = "t.#{row_type} :#{name}"
+    s << ", limit: 8" if row_type == "integer"
     s << ", index: true" if self.indexed
     s
   end
@@ -40,8 +41,10 @@ class Row
       "hash"
     when "Array"
       "array"
+    when "Integer"
+      "integer"
     else
-      if key.end_with?("_id")
+      if key.end_with?("_id") || key == "id" || key.end_with?("_count")
         puts "Had an issue with the column \"#{key}\" in \"#{table}\", check the row's type"
         "integer"
       elsif key.end_with?("_at")
